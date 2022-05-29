@@ -1,24 +1,25 @@
 package com.JPMorgan;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class Show {
 	private String showNumber;
 	private int expiryMinutes;
 	private List <Row> rows = new ArrayList <> ();
+	private List <Ticket> tickets = new ArrayList <> ();
 	
 	public Show(String showNumber, int rowLength, int numOfSeats, int expiryMinutes) {
 		this.showNumber = showNumber;
 		this.expiryMinutes = expiryMinutes;
 		for (int i = 0; i < rowLength; i++) {
-			Row row = new Row(getAscii(i));
+			Row row = new Row(Util.getAscii(i));
 			List <ReservedSeat> seats = new ArrayList <> ();
 			for (int j = 0; j < numOfSeats; j++) {
-				ReservedSeat seat = new ReservedSeat(j, Boolean.FALSE);
+				ReservedSeat seat = new ReservedSeat(Util.getAscii(i) + j, Boolean.FALSE);
 				seats.add(seat);
 			}
 			row.setSeats(seats);
@@ -26,20 +27,36 @@ public class Show {
 		}
 	}
 	
-	public String book (String seats) {
+	public Ticket book (String seats, String phone, LocalDateTime expiryDate) {
 		String seatArr [] = seats.split(",");
+		
+		List <Seat> seatList = new ArrayList <Seat> ();
 		for (int i = 0; i < seatArr.length; i++) {
 			char row = seatArr[i].substring(0, 1).charAt(0);
-			int seatNumber = Integer.parseInt(seatArr[i].substring(1, 2));
-			int rowNumber = getIntFromAscii(row);
+			int seatNumber = Integer.parseInt(seatArr[i].substring(1, 2)) - 1;
+			int rowNumber = Util.getIntFromAscii(row) - 10;
 			
 			rows.get(rowNumber).getSeats().get(seatNumber).setIsReserved(Boolean.TRUE);
 			
-			return DigestUtils.md5Hex(seatArr[i]).toUpperCase();
+			Seat seat = new ReservedSeat(seatArr[i], Boolean.TRUE);
+			seatList.add(seat);
 		}
-		return "";
+		
+		Ticket ticket = new Ticket();
+		ticket.book(seatList, phone, expiryDate);
+		
+		tickets.add(ticket);
+		return ticket;
 	}
 	
+	public List<Ticket> getTickets() {
+		return tickets;
+	}
+
+	public void setTickets(List<Ticket> tickets) {
+		this.tickets = tickets;
+	}
+
 	public String getShowNumber() {
 		return showNumber;
 	}
@@ -89,11 +106,5 @@ public class Show {
 		return Objects.equals(showNumber, other.showNumber);
 	}
 
-	private String getAscii(int i) {
-	    return i > -1 && i < 26 ? String.valueOf((char)(i + 65)) : null;
-	}
 	
-	private int getIntFromAscii(char c) {
-		return Character.getNumericValue(c);
-	}
 }

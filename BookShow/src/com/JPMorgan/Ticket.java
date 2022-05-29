@@ -1,23 +1,22 @@
 package com.JPMorgan;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 public class Ticket {
 	private String ticketNumber;
 	private String phoneNumber;
-	private Date expiryDate;
+	private LocalDateTime expiryDate;
 	private List <Seat> seatList = new ArrayList <> ();
 	
-	public String book(Seat seat) {
-		addSeat(seat);
-		return ticketNumber;
-	}
-
-	private void addSeat(Seat seat) {
-		
-		this.seatList.add(seat);
+	public void book(List <Seat> seats, String phoneNumber, LocalDateTime expiryDate) {
+		this.phoneNumber = phoneNumber;
+		this.expiryDate = expiryDate;
+		seatList.addAll(seats);		
 	}
 	
 	public String getTicketNumber() {
@@ -36,12 +35,22 @@ public class Ticket {
 		this.phoneNumber = phoneNumber;
 	}
 
-	public Date getExpiryDate() {
+	public LocalDateTime getExpiryDate() {
 		return expiryDate;
 	}
 
-	public void setExpiryDate(Date expiryDate) {
+	public void setExpiryDate(LocalDateTime expiryDate) {
 		this.expiryDate = expiryDate;
 	}
+
+	public List<Seat> getSeatList() {
+		return seatList;
+	}
+
+	public void setSeatList(List<Seat> seatList) {
+		this.seatList = seatList;
+	}
+	
+	
 	
 }

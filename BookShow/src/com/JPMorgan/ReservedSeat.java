@@ -2,10 +2,10 @@ package com.JPMorgan;
 
 public class ReservedSeat implements Seat {
 	private Boolean isReserved;
-	private int seatNumber;
+	private String seatNumber;
 
 	
-	public ReservedSeat(int seatNumber, Boolean isReserved) {
+	public ReservedSeat(String seatNumber, Boolean isReserved) {
 		this.isReserved = isReserved;
 		this.seatNumber = seatNumber;
 	}
@@ -15,10 +15,10 @@ public class ReservedSeat implements Seat {
 	public void setIsReserved(Boolean isReserved) {
 		this.isReserved = isReserved;
 	}
-	public int getSeatNumber() {
+	public String getSeatNumber() {
 		return seatNumber;
 	}
-	public void setSeatNumber(int seatNumber) {
+	public void setSeatNumber(String seatNumber) {
 		this.seatNumber = seatNumber;
 	}
 	

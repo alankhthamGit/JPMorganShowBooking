@@ -1,15 +1,23 @@
 package com.JPMorgan;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 public class Main {
 
 	private static Map <String, Show> shows = new HashMap <> ();
 	
+	private static int exipryMinutes;
+	
 	public static void main(String[] args) {
-		 Scanner command = new Scanner(System.in);
+		Scanner command = new Scanner(System.in);
 
 	    System.out.println("Enter command: ");
 	    Boolean running = Boolean.TRUE;
@@ -42,9 +50,9 @@ public class Main {
 			String showNumber = cmd[1];
 			int rows = Integer.valueOf(cmd[2]);
 			int seats = Integer.valueOf(cmd[3]);
-			int cancellationWindow = Integer.valueOf(cmd[4]);
+			exipryMinutes = Integer.valueOf(cmd[4]);
 			
-			Show show = new Show(showNumber, rows, seats, cancellationWindow);
+			Show show = new Show(showNumber, rows, seats, exipryMinutes);
 			
 			shows.put(showNumber, show);
 			
@@ -58,9 +66,20 @@ public class Main {
 		String cmd [] = command.split(" ");
 		
 		if (cmd.length == 2 && shows.containsKey(cmd[1])) {
-			System.out.println(shows.get(cmd[1]).toString());
+			String showNumber = cmd[1];
+			
+			Show show = shows.get(showNumber);
+			List<Ticket> tickets = show.getTickets();
+			tickets.forEach(ticket -> {
+				System.out.println("Ticket Number is : " + ticket.getTicketNumber());
+				System.out.println("Phone Number is : " + ticket.getPhoneNumber());
+				
+				List <Seat> seats = ticket.getSeatList();
+				seats.forEach(seat -> {
+					System.out.println("Seat: " + ((ReservedSeat)seat).getSeatNumber());
+				});
+			});
 		}
-		
 	}
 	
 	private static void avail(String command) {
@@ -76,9 +95,15 @@ public class Main {
 			String phone = cmd[2];
 			String seats = cmd[3];
 			
+			LocalDateTime expiryTime = LocalDateTime.now().plus(Duration.of(exipryMinutes, ChronoUnit.MINUTES));
+			
 			if (shows.containsKey(showNumber)) {
 				Show show = shows.get(showNumber);
-				System.out.println("Ticket Number is : " + show.book(seats));
+				Ticket ticket = show.book(seats, phone, expiryTime);
+				
+				String ticketNumber = DigestUtils.md5Hex(seats).toUpperCase();
+				ticket.setTicketNumber(ticketNumber);
+				System.out.println("Ticket Number is : " + ticketNumber);
 			}
 		}
 	}
