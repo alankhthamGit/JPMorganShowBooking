@@ -1,0 +1,7 @@
+Setup show1 10 20 2
+
+View show1
+
+Availability
+
+Book show1 123 A1
