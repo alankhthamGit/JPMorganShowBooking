@@ -1,5 +1,7 @@
 package com.JPMorgan;
 
+import java.util.Objects;
+
 public class ReservedSeat implements Seat {
 	private Boolean isReserved;
 	private String seatNumber;
@@ -21,16 +23,21 @@ public class ReservedSeat implements Seat {
 	public void setSeatNumber(String seatNumber) {
 		this.seatNumber = seatNumber;
 	}
+	@Override
+	public int hashCode() {
+		return Objects.hash(seatNumber);
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ReservedSeat other = (ReservedSeat) obj;
+		return Objects.equals(seatNumber, other.seatNumber);
+	}
 	
-//	public void book(Seat seat) {
-//		this.isReserved = Boolean.TRUE;
-//		this.seatNumber = seat.toString();
-//	}
-//	
-//	@Override
-//	public String toString() {
-//		return seatNumber;
-//	}
-//	
-	
+		
 }

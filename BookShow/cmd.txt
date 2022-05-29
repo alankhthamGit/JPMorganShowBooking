@@ -1,7 +1,8 @@
-Setup show1 10 20 2
+Setup show1 26 10 1
 
 View show1
 
-Availability
+Availability show1
 
-Book show1 123 A1,C12
+Book show1 123 A1,C9
+Book show1 456 A2,C10

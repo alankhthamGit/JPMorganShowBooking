@@ -3,7 +3,9 @@ package com.JPMorgan;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -15,6 +17,8 @@ public class Main {
 	private static Map <String, Show> shows = new HashMap <> ();
 	
 	private static int exipryMinutes;
+	private static final int maxSeats = 11;
+	private static final int maxRows = 27;
 	
 	public static void main(String[] args) {
 		Scanner command = new Scanner(System.in);
@@ -49,7 +53,17 @@ public class Main {
 		if (cmd.length == 5) {
 			String showNumber = cmd[1];
 			int rows = Integer.valueOf(cmd[2]);
+			if (rows > maxRows) {
+				System.out.println("Error: Maximum number of rows exceeded! Setup not done.");
+				return;
+			}
+			
 			int seats = Integer.valueOf(cmd[3]);
+			if (seats > maxSeats) {
+				System.out.println("Error: Maximum number of seats exceeded! Setup not done.");
+				return;
+			}
+			
 			exipryMinutes = Integer.valueOf(cmd[4]);
 			
 			Show show = new Show(showNumber, rows, seats, exipryMinutes);
@@ -84,6 +98,33 @@ public class Main {
 	
 	private static void avail(String command) {
 		System.out.println("In avail");
+		
+		String cmd [] = command.split(" ");
+		
+		if (cmd.length == 2 && shows.containsKey(cmd[1])) {
+			String showNumber = cmd[1];
+			
+			Show show = shows.get(showNumber);
+			
+			List <Ticket> tickets = show.getTickets();
+			List <Seat> reservedSeats = new ArrayList <> ();
+			
+			tickets.forEach(ticket -> {
+				List <Seat> seats = ticket.getSeatList();
+				reservedSeats.addAll(seats);
+			});
+			
+			show.getRows().forEach(row -> {
+				List <ReservedSeat> seats = row.getSeats();
+				
+				seats.forEach(seat -> {
+					if (!reservedSeats.contains(seat)) {
+						System.out.print(seat.getSeatNumber() + " ");
+					}
+				});
+			});
+			
+		}
 	}
 	
 	private static void book(String command) {
@@ -110,6 +151,38 @@ public class Main {
 	
 	private static void cancel(String command) {
 		System.out.println("In cancel");
+		
+		String cmd [] = command.split(" ");
+		if (cmd.length == 3) {
+			String ticketNumber = cmd[1];
+			String phone = cmd[2];
+			
+			String isCancelledStatus = "not found";
+			outer:
+			for (Map.Entry<String, Show> showMap : shows.entrySet()) {
+				Show show = showMap.getValue();
+				
+				List <Ticket> tickets = show.getTickets();
+
+				Iterator<Ticket> t = tickets.iterator();
+				while (t.hasNext()) {
+					Ticket ticket = t.next();
+					
+					if (ticket.getTicketNumber().equalsIgnoreCase(ticketNumber)) {
+						if (ticket.getExpiryDate().isAfter(LocalDateTime.now())) {
+							t.remove();
+							
+							isCancelledStatus = "Cancelled";
+							break outer;
+						}
+						isCancelledStatus = "Expired";
+						break outer;
+					}
+				}
+				
+			}
+			System.out.println("Ticket is " + isCancelledStatus);
+		}
 	}
 
 }
