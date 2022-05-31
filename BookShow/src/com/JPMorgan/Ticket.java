@@ -2,10 +2,8 @@ package com.JPMorgan;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.codec.digest.DigestUtils;
 
 public class Ticket {
 	private String ticketNumber;

@@ -17,6 +17,7 @@ public class Main {
 	private static Map <String, Show> shows = new HashMap <> ();
 	
 	private static int exipryMinutes;
+	private static int seatsPerRow;
 	private static final int maxSeats = 11;
 	private static final int maxRows = 27;
 	
@@ -39,12 +40,15 @@ public class Main {
 	    	} else if (commandStr.startsWith("Cancel")) {
 	    		cancel(commandStr);
 	    	} else {
-	    		System.out.println("Exited.");
+	    		System.out.println("Invalid command.");
 	    	}
 	    }
 	    command.close();
 	}
 	
+	/**
+	 * Sets up show
+	 */
 	private static void setup(String command) {
 		System.out.println("In setup");
 		
@@ -65,15 +69,21 @@ public class Main {
 			}
 			
 			exipryMinutes = Integer.valueOf(cmd[4]);
+			seatsPerRow = seats;
 			
 			Show show = new Show(showNumber, rows, seats, exipryMinutes);
 			
 			shows.put(showNumber, show);
 			
 			System.out.println("Show number " + showNumber + " created.");
+		} else {
+			System.out.println("Invalid arguments.");
 		}
 	}
 	
+	/*
+	 * View tickets in show.
+	 */
 	private static void view(String command) {
 		System.out.println("In view");
 		
@@ -93,9 +103,14 @@ public class Main {
 					System.out.println("Seat: " + ((ReservedSeat)seat).getSeatNumber());
 				});
 			});
+		} else {
+			System.out.println("Invalid arguments.");
 		}
 	}
 	
+	/**
+	 * View availability
+	 */
 	private static void avail(String command) {
 		System.out.println("In avail");
 		
@@ -119,14 +134,23 @@ public class Main {
 				
 				seats.forEach(seat -> {
 					if (!reservedSeats.contains(seat)) {
-						System.out.print(seat.getSeatNumber() + " ");
+						System.out.print(seat.getSeatNumber() + " ");						
+					} else {
+						System.out.print("   ");
+					}
+					if(seat.getSeatNumber().substring(1, seat.getSeatNumber().length()).equals(String.valueOf(seatsPerRow - 1))) {
+						System.out.print("\r");
 					}
 				});
 			});
-			
+		} else {
+			System.out.print("Invalid show.");
 		}
 	}
 	
+	/*
+	 * Book ticket
+	 */
 	private static void book(String command) {
 		System.out.println("In book");
 		
@@ -140,15 +164,27 @@ public class Main {
 			
 			if (shows.containsKey(showNumber)) {
 				Show show = shows.get(showNumber);
-				Ticket ticket = show.book(seats, phone, expiryTime);
-				
-				String ticketNumber = DigestUtils.md5Hex(seats).toUpperCase();
-				ticket.setTicketNumber(ticketNumber);
-				System.out.println("Ticket Number is : " + ticketNumber);
+				Ticket ticket;
+				try {
+					ticket = show.book(seats, phone, expiryTime);
+					show.getPhoneList().add(phone);
+					
+					String ticketNumber = DigestUtils.md5Hex(seats + showNumber).toUpperCase();
+					ticket.setTicketNumber(ticketNumber);
+					
+					System.out.println("Ticket Number is : " + ticketNumber);
+				} catch (InvalidSeatException e) {
+					System.out.println("Ticket is not booked"); 
+				}
 			}
+		} else {
+			System.out.println("Invalid arguments.");
 		}
 	}
 	
+	/*
+	 * Cancel ticket
+	 */
 	private static void cancel(String command) {
 		System.out.println("In cancel");
 		
@@ -168,15 +204,20 @@ public class Main {
 				while (t.hasNext()) {
 					Ticket ticket = t.next();
 					
-					if (ticket.getTicketNumber().equalsIgnoreCase(ticketNumber)) {
+					if (ticket.getTicketNumber().equalsIgnoreCase(ticketNumber)
+							&& show.getPhoneList().contains(phone)) {
 						if (ticket.getExpiryDate().isAfter(LocalDateTime.now())) {
 							t.remove();
+							
+							show.getPhoneList().remove(phone);
 							
 							isCancelledStatus = "Cancelled";
 							break outer;
 						}
 						isCancelledStatus = "Expired";
 						break outer;
+					} else {
+						isCancelledStatus = "not cancelled. Phone is wrong.";
 					}
 				}
 				
@@ -184,5 +225,4 @@ public class Main {
 			System.out.println("Ticket is " + isCancelledStatus);
 		}
 	}
-
 }

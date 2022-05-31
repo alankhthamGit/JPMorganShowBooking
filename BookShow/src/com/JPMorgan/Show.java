@@ -11,6 +11,7 @@ public class Show {
 	private int expiryMinutes;
 	private List <Row> rows = new ArrayList <> ();
 	private List <Ticket> tickets = new ArrayList <> ();
+	private List <String> phoneList = new ArrayList <> ();
 	
 	public Show(String showNumber, int rowLength, int numOfSeats, int expiryMinutes) {
 		this.showNumber = showNumber;
@@ -27,8 +28,12 @@ public class Show {
 		}
 	}
 	
-	public Ticket book (String seats, String phone, LocalDateTime expiryDate) {
+	public Ticket book (String seats, String phone, LocalDateTime expiryDate) throws InvalidSeatException {
 		String seatArr [] = seats.split(",");
+		
+		if (phoneList.contains(phone)) {
+			throw new InvalidSeatException("Phone is already used in booking.");
+		}
 		
 		List <Seat> seatList = new ArrayList <Seat> ();
 		for (int i = 0; i < seatArr.length; i++) {
@@ -36,10 +41,14 @@ public class Show {
 			int seatNumber = Integer.parseInt(seatArr[i].substring(1, 2)) - 1;
 			int rowNumber = Util.getIntFromAscii(row) - 10;
 			
-			rows.get(rowNumber).getSeats().get(seatNumber).setIsReserved(Boolean.TRUE);
-			
-			Seat seat = new ReservedSeat(seatArr[i], Boolean.TRUE);
-			seatList.add(seat);
+			if (!rows.get(rowNumber).getSeats().get(seatNumber).getIsReserved()) {
+				rows.get(rowNumber).getSeats().get(seatNumber).setIsReserved(Boolean.TRUE);
+				
+				Seat seat = new ReservedSeat(seatArr[i], Boolean.TRUE);
+				seatList.add(seat);
+			} else {
+				throw new InvalidSeatException("Seat " + seatArr[i] + " is not available.");
+			}
 		}
 		
 		Ticket ticket = new Ticket();
@@ -81,9 +90,15 @@ public class Show {
 	public void setRows(List<Row> rows) {
 		this.rows = rows;
 	}
+	
+	public List<String> getPhoneList() {
+		return phoneList;
+	}
 
-	
-	
+	public void setPhoneList(List<String> phoneList) {
+		this.phoneList = phoneList;
+	}
+
 	@Override
 	public String toString() {
 		return "Show [showNumber=" + showNumber + "]";

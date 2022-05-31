@@ -1,8 +1,12 @@
 Setup show1 26 10 1
+Setup show2 26 10 1
 
 View show1
 
 Availability show1
 
 Book show1 123 A1,C9
-Book show1 456 A2,C10
+Book show1 456 A2,C8
+
+
+Cancel 995C54678B1F35A9BC2CC100F1E237BC 123
