@@ -17,7 +17,8 @@ public class Main {
 	private static Map <String, Show> shows = new HashMap <> ();
 	
 	private static int exipryMinutes;
-	private static int seatsPerRow;
+	public static int seatsPerRow;
+	public static int configuredRows;
 	private static final int maxSeats = 11;
 	private static final int maxRows = 27;
 	
@@ -70,6 +71,7 @@ public class Main {
 			
 			exipryMinutes = Integer.valueOf(cmd[4]);
 			seatsPerRow = seats;
+			configuredRows = rows;
 			
 			Show show = new Show(showNumber, rows, seats, exipryMinutes);
 			

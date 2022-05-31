@@ -38,10 +38,16 @@ public class Show {
 		List <Seat> seatList = new ArrayList <Seat> ();
 		for (int i = 0; i < seatArr.length; i++) {
 			char row = seatArr[i].substring(0, 1).charAt(0);
-			int seatNumber = Integer.parseInt(seatArr[i].substring(1, 2)) - 1;
+			int seatNumber = Integer.parseInt(seatArr[i].substring(1, 2));
 			int rowNumber = Util.getIntFromAscii(row) - 10;
 			
+			if (seatNumber < 0 || seatNumber >= Main.seatsPerRow 
+					|| rowNumber < 0 ||  rowNumber >= Main.configuredRows) {
+				throw new InvalidSeatException("Seat " + seatArr[i] + " is not available.");
+			}
+			
 			if (!rows.get(rowNumber).getSeats().get(seatNumber).getIsReserved()) {
+					
 				rows.get(rowNumber).getSeats().get(seatNumber).setIsReserved(Boolean.TRUE);
 				
 				Seat seat = new ReservedSeat(seatArr[i], Boolean.TRUE);
